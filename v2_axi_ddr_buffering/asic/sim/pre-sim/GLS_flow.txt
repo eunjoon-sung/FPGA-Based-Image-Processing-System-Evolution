@@ -3,7 +3,7 @@ GLS를 돌리기 위해서는 RTL 시뮬레이션 때와 달리 결정적인 준
 
 필수 파일 4가지 확보:
 
-테스트벤치: 방금 제공해 드린 tb_axi_writer_gls.v
+테스트벤치: tb_axi_writer_gls.v
 
 넷리스트 도면: Genus가 만든 outputs/AXI_writer_netlist.v
 
