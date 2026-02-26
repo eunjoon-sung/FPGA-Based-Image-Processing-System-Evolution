@@ -5,7 +5,7 @@ This repository documents the evolution of a real-time hardware video processing
 
 ---
 
-### 1. Phase 1: BRAM-Based Streaming Architecture (Folder: `v1_bram_streaming`)
+## 1. Phase 1: BRAM-Based Streaming Architecture (Folder: `v1_bram_streaming`)
 
 **Overview & Implementation:**
 * **Capture & Control:** Custom RTL implementation of the I2C (SCCB) protocol for camera configuration. Designed a Data Capturer to extract valid pixels strictly synchronized with VSYNC/HREF signals.
@@ -18,32 +18,34 @@ This repository documents the evolution of a real-time hardware video processing
 * **Resolution:** Implemented a **Direct Drive (Genlock)** approach, unifying the entire pipeline under the camera's PCLK as the master clock. This forced data and control signals to share the exact same pipeline delay, successfully eliminating the tearing.
 
 **Architectural Limitations (The "Why" behind Phase 2):**
-1.  **Resource Constraints:** Insufficient internal FPGA memory (BRAM) prevented the implementation of a Full Frame Buffer, forcing a rigid "Streaming Processing" architecture.
-2.  **Scalability Bottleneck:** The Genlock solution (tightly coupled clocks) made the system inherently inflexible. It became impossible to interface with heterogeneous systems requiring different input/output frame rates.
+1. **Resource Constraints:** Insufficient internal FPGA memory (BRAM) prevented the implementation of a Full Frame Buffer, forcing a rigid "Streaming Processing" architecture.
+2. **Scalability Bottleneck:** The Genlock solution (tightly coupled clocks) made the system inherently inflexible. It became impossible to interface with heterogeneous systems requiring different input/output frame rates.
 
 ---
 
-# Phase 2: AXI4-Stream & DDR3 Frame Buffering Architecture
+## 2. Phase 2: AXI4-Stream & DDR3 Frame Buffering Architecture (Folder: `v2_axi_ddr_buffering`)
 
-## 1. Module Overview
+### Module Overview
 This phase upgrades the video processing pipeline by integrating external DDR3 memory via the AMBA AXI4 interface. The architecture addresses the constraints of the previous BRAM-based streaming model by isolating the Camera Capture domain (Write) from the Display domain (Read) using asynchronous FIFOs and full-frame buffering.
 
-* **Write Path (Camera $\to$ DDR):** OV7670 Capture $\to$ Async FIFO (CDC) $\to$ Custom AXI4 Master Writer $\to$ Zynq HP Port $\to$ DDR3
-* **Read Path (DDR $\to$ HDMI):** DDR3 $\to$ Zynq HP Port $\to$ Custom AXI4 Master Reader $\to$ Async FIFO $\to$ VTG/HDMI
+* **Write Path (Camera -> DDR):** OV7670 Capture -> Async FIFO (CDC) -> Custom AXI4 Master Writer -> Zynq HP Port -> DDR3
+* **Read Path (DDR -> HDMI):** DDR3 -> Zynq HP Port -> Custom AXI4 Master Reader -> Async FIFO -> VTG/HDMI
 * **Image Processing:** RGB565 to RGB444 slicing, real-time Chroma-key mixing.
 
 ---
 
-## 2. Critical Troubleshooting Log
+## 3. Critical Troubleshooting Log
 
 The transition to a decoupled memory architecture introduced complex synchronization and data integrity challenges. Below is the engineering log detailing the root cause analysis of critical artifacts.
 
 ### Issue 1: Image Scaling (1/4x) and Vertical Folding (Ghosting)
+
 * **Symptom:** The output display showed severe distortion. The image appeared scaled down to 1/4 of the screen, and the right side of the physical frame wrapped around to overlay on the subsequent scanlines (Ghosting/Folding).
-* **Hypothesis 1 (AXI Bandwidth/Burst):** Suspected that the AXI Writer was stalled or FIFO was overflowing. Adjusted `AWLEN` (64 $\to$ 256 $\to$ 80) and FIFO depths (2048 $\to$ 8192) to prevent potential data drops. *Result: Artifacts persisted.*
-* **Hypothesis 2 (Buffer Synchronization):** Suspected Read/Write pointer collision in the double buffering scheme. Modified VSYNC synchronization and `ADDR_OFFSET` reset timing to ensure strict boundary isolation. *Result: Offset shifted, but folding remained.*
+* **Hypothesis 1 (AXI Bandwidth/Burst):** Suspected that the AXI Writer was stalled or FIFO was overflowing. Adjusted `AWLEN` (64 -> 256 -> 80) and FIFO depths (2048 -> 8192) to prevent potential data drops. *(Result: Artifacts persisted)*
+* **Hypothesis 2 (Buffer Synchronization):** Suspected Read/Write pointer collision in the double buffering scheme. Modified VSYNC synchronization and `ADDR_OFFSET` reset timing to ensure strict boundary isolation. *(Result: Offset shifted, but folding remained)*
 * **Verification (Vivado ILA):** Probed the `m_axi_w_wdata` directly at the AXI Write channel. 
 * **Root Cause:** The ILA waveform revealed data duplication (`0xFFAA 0xFFAA`...). The 8-bit to 16-bit word assembly logic in the `camera_capture` module lacked an explicit reset for the `pixel_valid` signal during the odd/even byte transition state. This generated a hardware latch, asserting `valid` for two clock cycles. Consequently, 1 pixel was written twice (AABB), causing the DDR address pointer to increment at 2x speed. This misalignment pushed Line N's data into Line N+1's memory address space, resulting in the folding artifact.
+
 * **Resolution:** Implemented explicit state-machine level gating for `pixel_valid <= 0;` ensuring a strict single-cycle strobe per 16-bit word. Memory mapping restored to a 1:1 pixel-to-address ratio.
 
 ### Issue 2: Chroma-key Noise and Color Distortion
@@ -55,9 +57,10 @@ The transition to a decoupled memory architecture introduced complex synchroniza
 
 ---
 
-## 3. Known Limitations & Future Work
+## 4. Known Limitations & Future Work
 
-While the current AXI4 architecture successfully decouples the clock domains, it currently relies on an "Open-loop" writing mechanism. The system assumes perfect data ingestion based on the VSYNC frame boundary.
+While the current AXI4 architecture successfully decouples the clock domains, it relies on an "Open-loop" writing mechanism. The system assumes perfect data ingestion based strictly on the VSYNC frame boundary.
 
-* **Vulnerability:** If external EMI noise or camera glitches cause a dropped or extra pixel, the linear address pointer (`ADDR_OFFSET`) will permanently shift for the remainder of the frame, corrupting the memory map.
-* **
+* **Vulnerability (Error Propagation):** If external EMI noise or camera glitches cause a dropped or extra pixel, the linear address pointer (`ADDR_OFFSET`) will permanently shift for the remainder of the frame, corrupting the memory map until the next VSYNC clears the error.
+* **Proposed Upgrade 1 (Line-Level Synchronization):** Implement an active sub-address correction mechanism using the **HREF (HSYNC) signal**. By forcing the memory write pointer to align with the start of a new row address at every HREF rising edge, any pixel noise will be localized to a single scanline, significantly increasing system robustness.
+* **Proposed Upgrade 2 (Triple Buffering):** Transition from the current rigid double-buffering architecture to a **Triple Buffering Scheme**. This will introduce a completely independent, third memory space that acts as a traffic controller, physically guaranteeing that the AXI Reader never accesses a memory block currently being modified by the AXI Writer, eliminating all residual asynchronous tearing.
