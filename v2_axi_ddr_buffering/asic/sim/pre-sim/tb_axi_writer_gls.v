@@ -80,11 +80,28 @@ module tb_axi_writer_gls;
     // ==========================================
     // 3. SDF Annotation (GLS의 핵심)
     // ==========================================
-    initial begin
-        // 합성 툴이 뽑아낸 SDF 파일을 읽어 게이트 딜레이를 주입합니다.
-        // 경로("outputs/AXI_writer_sdf.sdf")는 실제 파일 위치에 맞게 수정해야 합니다.
-        $sdf_annotate("outputs/AXI_writer_sdf.sdf", uut);
-    end
+
+     initial begin
+      // 합성 툴이 뽑아낸 SDF 파일을 읽어 게이트 딜레이를 주입합니다.
+      //$sdf_annotate("SDF경로", 타겟인스턴스, [설정파일], "로그파일", "MTM조건");
+         
+        $sdf_annotate(
+            "../../syn/outputs/AXI_writer_sdf.sdf",  // 1. SDF 파일 경로
+            tb_axi_writer_gls.uut,         // 2. TB 이름(tb_axi_writer_gls) 내부의 DUT 이름(uut)
+            ,                              // 3. Config (생략)
+            "sdf_axi_writer.log",          // 4. Annotation 에러/경고 기록용 로그
+            "MAXIMUM"                      // 5. 최악의 조건(Setup 딜레이) 테스트
+        );
+     end
+    
+    /* sdf 파일 경로를 알려줌.
+    - sdf 파일을 tb_simple_spi.u1에 적용시키는 것임 (여기서 u1은 module 이름),
+    - 세번째는 보통 매핑 정보가 들어가는데 기본적으로 같으므로 비워놓음.
+    - 네번째 log file 이름
+    - "MAXIMUM"은 공정상에서 발생할 수 있는 가장 최악의 조건을 설정한다는 뜻 
+    ; delay 값이 최대로 늘어나게 되면서 timing 조건(setup, hold time)도 달라지게 되기 때문
+    */
+
 
     // ==========================================
     // 4. 테스트 시나리오 (Stimulus)
