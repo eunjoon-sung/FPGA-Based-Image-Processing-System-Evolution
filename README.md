@@ -23,14 +23,41 @@ This repository documents the evolution of a real-time hardware video processing
 
 ---
 
-### 2. Phase 2: AXI4 & DDR-Based Asynchronous Architecture (Folder: `v2_axi_ddr_buffering`) [Current]
+# Phase 2: AXI4-Stream & DDR3 Frame Buffering Architecture
 
-**Migration Strategy & Objectives:**
-To overcome the severe limitations of Phase 1, the architecture was completely redesigned using the **AMBA AXI4 / AXI4-Stream** interfaces to leverage external PS-DDR memory.
+## 1. Module Overview
+This phase upgrades the video processing pipeline by integrating external DDR3 memory via the AMBA AXI4 interface. The architecture addresses the constraints of the previous BRAM-based streaming model by isolating the Camera Capture domain (Write) from the Display domain (Read) using asynchronous FIFOs and full-frame buffering.
 
-**Key Architectural Upgrades:**
-* **High-Capacity Frame Buffering:** Transitioned from BRAM to external 512MB DDR3 memory. This enabled the implementation of a **Full Frame Buffer** capable of handling high-resolution video without forced streaming.
-* **Clock Domain Decoupling:** Successfully isolated the camera input domain from the HDMI output domain. By building a robust asynchronous video processing system, the architecture is now highly tolerant of differing I/O speeds and heterogeneous data streams.
-* **Robust Synchronization:** Designed to support advanced buffering techniques (e.g., Triple Buffering) to ensure completely tear-free video output regardless of input latency.
+* **Write Path (Camera $\to$ DDR):** OV7670 Capture $\to$ Async FIFO (CDC) $\to$ Custom AXI4 Master Writer $\to$ Zynq HP Port $\to$ DDR3
+* **Read Path (DDR $\to$ HDMI):** DDR3 $\to$ Zynq HP Port $\to$ Custom AXI4 Master Reader $\to$ Async FIFO $\to$ VTG/HDMI
+* **Image Processing:** RGB565 to RGB444 slicing, real-time Chroma-key mixing.
 
-*(Note: Detailed troubleshooting logs regarding AXI-Stream interface integration and DDR memory map alignment during this phase can be found in the `v2` folder's README).*
+---
+
+## 2. Critical Troubleshooting Log
+
+The transition to a decoupled memory architecture introduced complex synchronization and data integrity challenges. Below is the engineering log detailing the root cause analysis of critical artifacts.
+
+### Issue 1: Image Scaling (1/4x) and Vertical Folding (Ghosting)
+* **Symptom:** The output display showed severe distortion. The image appeared scaled down to 1/4 of the screen, and the right side of the physical frame wrapped around to overlay on the subsequent scanlines (Ghosting/Folding).
+* **Hypothesis 1 (AXI Bandwidth/Burst):** Suspected that the AXI Writer was stalled or FIFO was overflowing. Adjusted `AWLEN` (64 $\to$ 256 $\to$ 80) and FIFO depths (2048 $\to$ 8192) to prevent potential data drops. *Result: Artifacts persisted.*
+* **Hypothesis 2 (Buffer Synchronization):** Suspected Read/Write pointer collision in the double buffering scheme. Modified VSYNC synchronization and `ADDR_OFFSET` reset timing to ensure strict boundary isolation. *Result: Offset shifted, but folding remained.*
+* **Verification (Vivado ILA):** Probed the `m_axi_w_wdata` directly at the AXI Write channel. 
+* **Root Cause:** The ILA waveform revealed data duplication (`0xFFAA 0xFFAA`...). The 8-bit to 16-bit word assembly logic in the `camera_capture` module lacked an explicit reset for the `pixel_valid` signal during the odd/even byte transition state. This generated a hardware latch, asserting `valid` for two clock cycles. Consequently, 1 pixel was written twice (AABB), causing the DDR address pointer to increment at 2x speed. This misalignment pushed Line N's data into Line N+1's memory address space, resulting in the folding artifact.
+* **Resolution:** Implemented explicit state-machine level gating for `pixel_valid <= 0;` ensuring a strict single-cycle strobe per 16-bit word. Memory mapping restored to a 1:1 pixel-to-address ratio.
+
+### Issue 2: Chroma-key Noise and Color Distortion
+* **Symptom:** The green-screen background was not fully masked (clipping failed), and the camera output displayed abnormal color temperatures (excessive green tint).
+* **Root Cause 1 (Color Temperature):** The OV7670 SCCB configuration lacked the specific AWB (Auto White Balance) algorithmic control register setup. The sensor defaulted to its physical bias (Bayer pattern's 2x green pixels).
+* **Root Cause 2 (Bit Slicing Mismatch):** The logic incorrectly sliced the incoming RGB565 data as RGB444, causing the LSBs of the Green channel (noise) to bleed into the MSBs of the Blue channel.
+* **Resolution:** 1. Updated SCCB ROM to assert register `0x6F` (`16'h6F_9F`) to enable Simple AWB control.
+  2. Corrected hardware bit-slicing logic: `R = {rgb_data[15:11], 3'b000}; G = {rgb_data[10:5], 2'b00}; B = {rgb_data[4:0], 3'b000};`
+
+---
+
+## 3. Known Limitations & Future Work
+
+While the current AXI4 architecture successfully decouples the clock domains, it currently relies on an "Open-loop" writing mechanism. The system assumes perfect data ingestion based on the VSYNC frame boundary.
+
+* **Vulnerability:** If external EMI noise or camera glitches cause a dropped or extra pixel, the linear address pointer (`ADDR_OFFSET`) will permanently shift for the remainder of the frame, corrupting the memory map.
+* **
