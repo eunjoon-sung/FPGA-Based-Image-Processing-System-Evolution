@@ -1,4 +1,4 @@
-Instance: /AXI_writer
+Instance: /AXI4_writer
 Power Unit: W
 PDB Frames: /stim#0/frame#0
   -------------------------------------------------------------------------
