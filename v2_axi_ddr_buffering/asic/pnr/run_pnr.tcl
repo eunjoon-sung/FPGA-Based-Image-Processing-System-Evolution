@@ -168,7 +168,6 @@ saveNetlist outputs/AXI4_writer_final.v
 
 # 3. GDSII 파일 출력 (이것이 칩 제조용 최종 도면입니다)
 streamOut outputs/AXI4_writer.gds \
-          -mapFile ../edu_lib/strmout.map \
           -libName DesignLib \
           -structureName AXI4_writer \
           -units 1000 \
