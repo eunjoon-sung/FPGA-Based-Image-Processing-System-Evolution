@@ -13,7 +13,7 @@ init_design
 # 2. Floorplan 수정 (면적 확보)
 # ==========================================================
 # 기존: -r 0.989... 0.7 (70% 밀도)
-# 수정: 밀도 목표를 0.55(55%)로 낮춰서 전체 면적을 약 15% 이상 넓힙니다.
+# 수정: 밀도 목표를 0.55(55%)로 낮춰서 전체 면적을 약 15% 이상 넓힘.
 floorPlan -site CoreSite -r 1.0 0.55 15.0 15.0 15.0 15.0
 
 # 글로벌 전원망 논리적 연결 (물리적 배선 아님)
@@ -119,7 +119,7 @@ timeDesign -postRoute -hold
 
 # Hold time - slack 뜸
 # ==========================================================
-# 12. Post-Route 홀드 타임 최적화 (Hold Fixing)
+# 12. Post-Route hold time 최적화 (Hold Fixing)
 # ==========================================================
 # OCV 모드에서 Hold 위반을 잡기 위해 버퍼를 추가로 삽입
 
@@ -127,12 +127,12 @@ optDesign -postRoute -hold
 timeDesign -postRoute -hold
 
 
-# 2. 만약 위 명령어가 또 안 된다면, 툴이 허용하는 방식으로 강제 업데이트
+# 2. 툴이 허용하는 방식으로 강제 업데이트
 set_interactive_constraint_modes [all_constraint_modes]
 set_clock_uncertainty -hold 0.1 [get_clocks *]
 set_interactive_constraint_modes {}
 
-# 툴에게 수단과 방법을 가리지 말고(Effort High) 홀드를 잡으라고 지시
+# 툴에게 수단과 방법을 가리지 말고 홀드를 잡으라고 지시
 setOptMode -effort high -fixHoldAllowOverlap true
 
 # 정석적인 Post-Route Hold 최적화 실행
@@ -141,8 +141,7 @@ optDesign -postRoute -hold
 # ==========================================================
 # 13. Filler insert
 # ==========================================================
-# 1. 라이브러리에 있는 Filler Cell들을 빈 공간에 채워넣습니다.
-# (라이브러리에 따라 FILL1, FILL2, FILLER 등으로 이름이 다를 수 있으니 확인 필요)
+# 1. 라이브러리에 있는 Filler Cell들을 빈 공간에 채움.
 
 addFiller -cell {FILL1 FILL2 FILL4 FILL8 FILL16 FILL32 FILL64} -prefix FILL
 
@@ -162,11 +161,11 @@ verify_geometry
 # 15. GDSII
 # ==========================================================
 
-# 최종 넷리스트 출력
-# 나중에 시뮬레이션이나 LVS 검증 시 원본 파일이 됩니다.
+# 최종 netlist file 출력
+# 나중에 시뮬레이션이나 LVS 검증 시 원본 파일이 됨.
 saveNetlist outputs/AXI4_writer_final.v
 
-# 3. GDSII 파일 출력 (이것이 칩 제조용 최종 도면입니다)
+# 3. GDSII 파일 출력 (chip 제조용 최종 도면)
 streamOut outputs/AXI4_writer.gds \
           -libName DesignLib \
           -structureName AXI4_writer \
