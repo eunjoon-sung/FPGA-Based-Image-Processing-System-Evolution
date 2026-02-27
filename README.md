@@ -1,6 +1,4 @@
-# Implementation of High-Throughput AXI4 Memory Buffer System: From FPGA Prototyping to 45nm ASIC GDSII Flow
-
-
+# Real-Time Video Processing Pipeline on Zynq-7000: From System Integration to ASIC Physical Implementation of AXI4 Writer
 
 ## 🚀 Architectural Evolution & Motivation
 This repository documents the evolution of a real-time hardware video processing pipeline on the Zynq-7000 SoC. It highlights the strategic migration from a tightly coupled, BRAM-based streaming architecture to a robust, asynchronous AXI4/DDR-based full-frame buffering system to overcome severe hardware constraints.
