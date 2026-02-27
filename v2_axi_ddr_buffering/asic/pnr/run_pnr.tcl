@@ -118,11 +118,10 @@ timeDesign -postRoute
 timeDesign -postRoute -hold
 
 # Hold time - slack 뜸
-
 # ==========================================================
 # 12. Post-Route 홀드 타임 최적화 (Hold Fixing)
 # ==========================================================
 # OCV 모드에서 Hold 위반을 잡기 위해 버퍼를 추가로 삽입
-optDesign -postRoute -hold
-timeDesign -postRoute -hold
+# optDesign -postRoute -hold
+# timeDesign -postRoute -hold
 
