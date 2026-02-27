@@ -157,3 +157,22 @@ verify_connectivity -type all
 
 # 3. Geometry - 부품이 겹치거나 경계를 벗어난 곳이 없는지 확인
 verify_geometry
+
+# ==========================================================
+# 15. GDSII
+# ==========================================================
+
+# 최종 넷리스트 출력
+# 나중에 시뮬레이션이나 LVS 검증 시 원본 파일이 됩니다.
+saveNetlist outputs/AXI4_writer_final.v
+
+# 3. GDSII 파일 출력 (이것이 칩 제조용 최종 도면입니다)
+streamOut outputs/AXI4_writer.gds \
+          -mapFile ../edu_lib/strmout.map \
+          -libName DesignLib \
+          -structureName AXI4_writer \
+          -units 1000 \
+          -mode ALL
+
+# 4. 전체 디자인 세션 저장
+saveDesign AXI4_writer_final.dat
