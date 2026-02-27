@@ -33,3 +33,14 @@ editPin -side Top -layer 3 -pin {AWREADY WREADY BVALID BRESP* o_prog_full state*
 
 # 화면 줌 피트
 fit
+
+# ==========================================================
+# 4. 전원망 링 설계 (Add Ring)
+# ==========================================================
+addRing -nets {VDD VSS} \
+        -type core_rings \
+        -follow core \
+        -layer {top Metal6 bottom Metal6 left Metal5 right Metal5} \
+        -width 2.0 \
+        -spacing 1.0 \
+        -offset 2.0
