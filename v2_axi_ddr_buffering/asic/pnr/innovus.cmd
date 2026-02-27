@@ -24,3 +24,15 @@ set init_verilog ../syn/outputs/AXI4_writer_netlist.v
 set init_mmmc_file 20260227.view
 set init_pwr_net VDD
 init_design
+
+getIoFlowFlag
+setIoFlowFlag 0
+floorPlan -site CoreSite -r 0.98949398777 0.699999 10.0 10.0 10.0 10.0
+uiSetTool select
+getIoFlowFlag
+fit
+setIoFlowFlag 0
+floorPlan -site CoreSite -r 0.988966365874 0.699626 10.0 10.07 10.0 10.07
+uiSetTool select
+getIoFlowFlag
+fit
