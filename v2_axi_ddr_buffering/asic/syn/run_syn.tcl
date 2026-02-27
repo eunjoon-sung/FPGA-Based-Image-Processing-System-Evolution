@@ -15,7 +15,7 @@ read_hdl async_fifo.v AXI4_writer.v
 # 3. Elaborate (구조 정리)
 # ==========================================
 elaborate AXI4_writer 
-
+set_db / .use_scan_seqs_for_non_dft false
 # ==========================================
 # 4. Constraints (제약조건)
 # ==========================================
