@@ -9,18 +9,18 @@ set_db init_hdl_search_path "../sim/"
 # 2. Read (파일 읽기)
 # ==========================================
 read_libs "slow_vdd1v0_basicCells.lib"
-read_hdl AXI_writer.v 
+read_hdl AXI4_writer.v 
 
 # ==========================================
 # 3. Elaborate (구조 정리)
 # ==========================================
-elaborate AXI_writer 
+elaborate AXI4_writer 
 
 # ==========================================
 # 4. Constraints (제약조건)
 # ==========================================
 # [수정] SDC 파일명 변경
-read_sdc ./AXI_writer.sdc 
+read_sdc ./AXI4_writer.sdc 
 
 # ==========================================
 # 5. Synthesis Effort (합성 강도 설정 - 기존 유지)
@@ -50,6 +50,6 @@ report_area > reports/test_area.rpt
 report_qor > reports/test_qor.rpt
 
 #  출력 파일명
-write_hdl > outputs/AXI_writer_netlist.v
-write_sdc > outputs/AXI_writer_sdc.sdc
-write_sdf -timescale ns -nonegchecks -recrem split -edges check_edge -setuphold split > outputs/AXI_writer_sdf.sdf
+write_hdl > outputs/AXI4_writer_netlist.v
+write_sdc > outputs/AXI4_writer_sdc.sdc
+write_sdf -timescale ns -nonegchecks -recrem split -edges check_edge -setuphold split > outputs/AXI4_writer_sdf.sdf
