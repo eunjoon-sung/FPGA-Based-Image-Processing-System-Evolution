@@ -9,7 +9,7 @@ set_db init_hdl_search_path "../sim/"
 # 2. Read (파일 읽기)
 # ==========================================
 read_libs "slow_vdd1v0_basicCells.lib"
-read_hdl AXI4_writer.v 
+read_hdl async_fifo.v AXI4_writer.v 
 
 # ==========================================
 # 3. Elaborate (구조 정리)
