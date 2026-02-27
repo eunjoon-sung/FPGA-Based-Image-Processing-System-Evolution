@@ -1,38 +1,38 @@
-#######################################################
-#                                                     
-#  Innovus Command Logging File                     
-#  Created on Sat Feb 28 03:44:54 2026                
-#                                                     
-#######################################################
-
-#@(#)CDS: Innovus v21.16-s078_1 (64bit) 12/07/2022 12:07 (Linux 3.10.0-693.el7.x86_64)
-#@(#)CDS: NanoRoute 21.16-s078_1 NR221206-1807/21_16-UB (database version 18.20.600) {superthreading v2.17}
-#@(#)CDS: AAE 21.16-s035 (64bit) 12/07/2022 (Linux 3.10.0-693.el7.x86_64)
-#@(#)CDS: CTE 21.16-s024_1 () Dec  5 2022 05:41:45 ( )
-#@(#)CDS: SYNTECH 21.16-s009_1 () Nov  9 2022 03:47:50 ( )
-#@(#)CDS: CPE v21.16-s066
-#@(#)CDS: IQuantus/TQuantus 21.1.1-s939 (64bit) Wed Nov 9 09:34:24 PST 2022 (Linux 3.10.0-693.el7.x86_64)
-
-set_global _enable_mmmc_by_default_flow      $CTE::mmmc_default
-suppressMessage ENCEXT-2799
-getVersion
-win
-save_global 20260227.globals
+# ==========================================================
+# 1. 초기 디자인 로드 (Design Import)
+# ==========================================================
 set init_gnd_net VSS
+set init_pwr_net VDD
 set init_lef_file {../edu_lib/lef/gsclib045_tech.lef ../edu_lib/lef/gsclib045_macro.lef}
 set init_verilog ../syn/outputs/AXI4_writer_netlist.v
 set init_mmmc_file 20260227.view
-set init_pwr_net VDD
+
 init_design
 
-getIoFlowFlag
-setIoFlowFlag 0
+# ==========================================================
+# 2. Floorplan (면적 70%, 여백 10um, 정사각형)
+# ==========================================================
 floorPlan -site CoreSite -r 0.98949398777 0.699999 10.0 10.0 10.0 10.0
-uiSetTool select
-getIoFlowFlag
-fit
-setIoFlowFlag 0
-floorPlan -site CoreSite -r 0.988966365874 0.699626 10.0 10.07 10.0 10.07
-uiSetTool select
-getIoFlowFlag
+
+# 글로벌 전원망 논리적 연결 (물리적 배선 아님)
+clearGlobalNets
+globalNetConnect VDD -type pgpin -pin VDD -instanceBasename * -hierarchicalInstance {}
+globalNetConnect VSS -type pgpin -pin VSS -instanceBasename * -hierarchicalInstance {}
+
+# ==========================================================
+# 3. Pin Editor (자동 정렬 배치)
+# ==========================================================
+# 기존에 엉킨 핀 배치를 싹 다 초기화.
+editPin -pin * -unplace
+
+# [Left] 입력 포트 배치 (클럭, 리셋, 카메라 센서 데이터)
+editPin -side Left -pin {pclk clk_100Mhz rst mixed_data* pixel_valid frame_done FRAME_BASE_ADDR*} -spreadType center -spacing 2.0
+
+# [Right] AXI 출력 포트 배치 (주소 및 데이터 내보내기)
+editPin -side Right -pin {AWVALID AWADDR* AWLEN* AWSIZE* AWBURST* AWCACHE* AWPROT* WVALID WDATA* WSTRB* WLAST BREADY} -spreadType center -spacing 2.0
+
+# [Top] AXI 응답 포트 및 상태 디버깅 핀 배치
+editPin -side Top -pin {AWREADY WREADY BVALID BRESP* o_prog_full state* ADDR_OFFSET*} -spreadType center -spacing 2.0
+
+# 화면 줌 피트
 fit
