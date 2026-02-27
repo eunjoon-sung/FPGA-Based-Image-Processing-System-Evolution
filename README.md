@@ -41,7 +41,7 @@ This phase upgrades the video processing pipeline by integrating external DDR3 m
 
 The transition to a decoupled memory architecture introduced complex synchronization and data integrity challenges. Below is the engineering log detailing the root cause analysis of critical artifacts.
 
-### Issue 1: Image Scaling (1/4x), Rolling, and Ghosting Artifacts
+### Issue 1: Image Rolling, Scaling (1/4x), and Ghosting Artifacts
 
 * **Symptom:** The output display suffered from severe distortion. The screen exhibited continuous vertical rolling, and the image appeared scaled down to 1/4 of the monitor with horizontal/vertical folding (Ghosting), where the right side of the frame wrapped around to overlay on subsequent scanlines.
 
