@@ -2,7 +2,7 @@
 # 1. Path Setting (경로 설정)
 # ==========================================
 # 기존의 slow 라이브러리 경로 유지
-set_db init_lib_search_path "/home/s_2025_h007/PROJECT/HDMI_DDR/syn/lib/"
+set_db init_lib_search_path "/home/s_2025_h007/PROJECT/HDMI_DDR/edu_lib/timing/"
 set_db init_hdl_search_path "../sim/" 
 
 # ==========================================
