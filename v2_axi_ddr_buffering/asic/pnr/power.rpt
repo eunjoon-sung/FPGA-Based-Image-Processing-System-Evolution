@@ -1,0 +1,97 @@
+*----------------------------------------------------------------------------------------
+*	Innovus 21.16-s078_1 (64bit) 12/07/2022 12:07 (Linux 3.10.0-693.el7.x86_64)
+*	
+*
+* 	Date & Time:	2026-Mar-03 02:53:24 (2026-Mar-02 17:53:24 GMT)
+*
+*----------------------------------------------------------------------------------------
+*
+*	Design: AXI4_writer
+*
+*	Liberty Libraries used: 
+*	        worst_case: ../edu_lib/timing/slow_vdd1v0_basicCells.lib
+*
+*	Power Domain used: 
+*              Rail:        VDD      Voltage:        0.9 
+*
+*       Power View : worst_case
+*
+*       User-Defined Activity : N.A.
+*
+*       Activity File: N.A.
+*
+*       Hierarchical Global Activity: N.A.
+*
+*       Global Activity: N.A.
+*
+*       Sequential Element Activity: 0.200000
+*
+*       Primary Input Activity: 0.200000
+*
+*       Default icg ratio: N.A.
+*
+*       Global Comb ClockGate Ratio: N.A.
+*
+*	Power Units = 1mW
+*
+*	Time Units = 1e-09 secs 
+*
+*       report_power -outfile reports/power.rpt
+*
+-----------------------------------------------------------------------------------------
+
+
+Total Power 
+-----------------------------------------------------------------------------------------
+Total Internal Power:        0.41156450 	   47.4939%
+Total Switching Power:       0.45346052 	   52.3286%
+Total Leakage Power:         0.00153868 	    0.1776%
+Total Power:                 0.86656370 
+-----------------------------------------------------------------------------------------
+
+
+Group                           Internal   Switching     Leakage       Total  Percentage 
+                                Power      Power         Power         Power  (%)        
+-----------------------------------------------------------------------------------------
+Sequential                        0.1973     0.02376   0.0003684      0.2215       25.56 
+Macro                                  0           0           0           0           0 
+IO                                     0           0           0           0           0 
+Combinational                     0.1889      0.3588    0.001138      0.5488       63.33 
+Clock (Combinational)            0.02535     0.07089   3.226e-05     0.09627       11.11 
+Clock (Sequential)                     0           0           0           0           0 
+-----------------------------------------------------------------------------------------
+Total                             0.4116      0.4535    0.001539      0.8666         100 
+-----------------------------------------------------------------------------------------
+
+
+Rail                  Voltage   Internal   Switching     Leakage       Total  Percentage 
+                                Power      Power         Power         Power  (%)        
+-----------------------------------------------------------------------------------------
+VDD                       0.9     0.4116      0.4535    0.001539      0.8666         100 
+
+
+Clock                           Internal   Switching     Leakage       Total  Percentage 
+                                Power      Power         Power         Power  (%)        
+-----------------------------------------------------------------------------------------
+pclk                             0.02535     0.07089   3.226e-05     0.09627       11.11 
+-----------------------------------------------------------------------------------------
+Total (excluding duplicates)     0.02535     0.07089   3.226e-05     0.09627       11.11 
+-----------------------------------------------------------------------------------------
+Clock: pclk
+Clock Period: 0.041660 usec 
+Clock Toggle Rate:    48.0077 Mhz 
+Clock Static Probability:  0.5000
+
+
+
+-----------------------------------------------------------------------------------------
+*	Power Distribution Summary: 
+*                Highest Average Power: FE_OFC1991_u_fifo_writer_rd_ptr_bin_0 (CLKINVX20):         0.001238 
+*                Highest Leakage Power: FE_OFC2015_FE_OFN202_u_fifo_writer_rd_ptr_bin_0 (CLKINVX20):        4.995e-07 
+*          Total Cap:      1.03641e-10 F
+*          Total instances in design: 23475
+*          Total instances in design with no power:     0
+*          Total instances in design with no activity:     0
+*          Total Fillers and Decap:     0
+-----------------------------------------------------------------------------------------
+

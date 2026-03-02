@@ -1,0 +1,5 @@
+    Hinst Name           Module Name          Inst Count           Total Area
+--------------------------------------------------------------------------
+AXI4_writer                                        23475            73574.802
+ u_fifo_writer_add_42_42 add_unsigned_319_332         23               46.512
+ u_fifo_writer_add_77_42 add_unsigned_319             18               31.122
