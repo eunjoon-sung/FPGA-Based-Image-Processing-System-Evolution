@@ -161,6 +161,9 @@ verify_geometry
 # ==========================================================
 # 15. 최종 결과물 추출 (Reports, SDF, GDSII)
 # ==========================================================
+# 스크립트 시작 전, 필요한 폴더가 없으면 생성
+exec mkdir -p outputs reports
+
 # 1. 면적 및 전력 리포트 추출
 report_area > reports/area.rpt
 report_power -outfile reports/power.rpt
