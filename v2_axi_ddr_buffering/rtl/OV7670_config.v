@@ -46,6 +46,9 @@ module OV7670_config
     localparam DELAY = 6; // 하드웨어를 고려한 설정추가: 물리적인 대기시간
     localparam WAIT_BUSY = 7;
 
+	// [why] READ_ROM state의 존재 이유 ?
+	// : 첫 번째 데이터 때문. IDLE에서 막 시작할 때는 주소가 바뀌자마자 데이터를 검사해야 하므로 한 클럭 동안 신호를 안전하게 안정화 시키고 받는 게 좋기 때문임.
+
     // FSM
     // 1. state register : 값을 저장하는 역할만 함.
     always @(posedge clk) begin
