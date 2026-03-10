@@ -21,7 +21,7 @@ module Video_timing_generator(
     // debugging
     assign o_h_count = h_count;
 
-    // upscaling을 위한 자체 좌표 생성
+    // signal 생성, upscaling을 위한 자체 좌표 생성
     reg [9:0] h_count; // 0~799
     reg [9:0] v_count; // 0~524
     
