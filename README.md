@@ -101,7 +101,7 @@ Following the system-level integration and logical verification in the FPGA (Viv
 
 ---
 
-## 4. Known Limitations & Future Work
+## 5. Known Limitations & Future Work
 
 While the current AXI4 architecture successfully decouples the clock domains, it relies on an "Open-loop" writing mechanism. The system assumes perfect data ingestion based strictly on the VSYNC frame boundary.
 
@@ -111,5 +111,5 @@ While the current AXI4 architecture successfully decouples the clock domains, it
 
 ---
 
-## 5. Result
+## 6. Result
 * **youtube link:** 🔗https://youtube.com/shorts/Bii2IKHq5Z0?feature=share
