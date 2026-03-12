@@ -32,7 +32,12 @@ This repository documents the evolution of a real-time hardware video processing
 
 * **Action & Verification (Write-Path Genlock & Module Consolidation):** To empirically test this hypothesis, the architecture was drastically refactored to remove the unstable Async FIFO. Three previously fragmented modules (`camera_read`, `downscaling`, and `sram_writer`) were aggressively consolidated into a single, unified `camera_capture` module. By driving this unified block strictly with the camera's native `PCLK` and explicitly gating the generated pixel data with the `HREF`/`VSYNC` signals, the data and control paths were physically and permanently coupled (Direct Drive / Genlock). Finally, the Clock Domain Crossing (CDC) boundary was strategically shifted to the SRAM itself, allowing the read-side pipeline (HDMI/VTG) to safely operate on independent internal system clocks (25MHz/100MHz).
 
+<div align="center">
+  <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/47e02775-964e-49d5-88db-06c9cf25d99c" />
+  <p><em>Figure 2: Architectural refactoring (Module Consolidation). The Async FIFO was removed, and three fragmented modules were unified to operate strictly under the camera's native PCLK.</em></p>
+</div>
 
+  As illustrated in the Before/After diagram, three previously fragmented modules (`Camera read`, `Downscaling`, and `SRAM writer`) were aggressively consolidated into a single, unified block. By driving this unified module strictly with the camera's native `PCLK` and explicitly gating the generated pixel data with the `VSYNC`/`HREF` signals in real-time, the data and control paths were physically and permanently coupled (Direct Drive / Genlock). The Clock Domain Crossing (CDC) boundary was strategically shifted to the SRAM itself, allowing the read-side pipeline to safely operate on the internal `clk_25Mhz`.
 
 | Final Output (Tearing Resolved & Chroma-key Applied) |
 | :---: |
