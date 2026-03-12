@@ -52,7 +52,7 @@ This phase upgrades the video processing pipeline by integrating external DDR3 m
 
 ---
 
-## 3. Critical Troubleshooting Log
+## 3. 🛠️ Critical Troubleshooting Log
 
 The transition to a decoupled memory architecture introduced complex synchronization and data integrity challenges. Below is the engineering log detailing the root cause analysis of critical artifacts.
 
