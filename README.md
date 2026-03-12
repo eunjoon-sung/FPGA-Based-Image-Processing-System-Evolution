@@ -27,6 +27,8 @@ This repository documents the evolution of a real-time hardware video processing
 
 * **Action & Verification (Write-Path Genlock):** To empirically test this hypothesis, the architecture was refactored to remove the unstable Async FIFO. Implemented a **Direct Drive (Genlock)** approach on the front-end by unifying the entire write-path processing pipeline (Capture to SRAM Write) strictly under the camera's native `PCLK`. By explicitly gating data valid signals with `HREF`, the data and control paths were physically coupled. The Clock Domain Crossing (CDC) boundary was strategically shifted to the SRAM itself, allowing the read-side pipeline (HDMI/VTG) to operate safely and independently on internal system clocks (25MHz/100MHz).
 
+
+
 | Final Output (Tearing Resolved & Chroma-key Applied) |
 | :---: |
 | <img src="./v1_bram_streaming/assets/final_result.png" width="500"> |
