@@ -12,7 +12,11 @@ This repository documents the evolution of a real-time hardware video processing
 * **Processing Pipeline:** Real-time chroma-key blending and downscaling (decimation) controlled by a deterministic FSM to minimize latency.
 * **Verification:** Applied 2-stage Flip-Flop synchronizers to prevent metastability across clock domains and utilized Vivado ILA for real-time signal timing verification.
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ea07afda-6a08-4f0e-9364-f3fe2a79c93f" />
+#### 📌 System Architecture (Initial Design)
+<div align="center">
+  <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ea07afda-6a08-4f0e-9364-f3fe2a79c93f" />
+  <p><em>Figure 1: Initial BRAM streaming architecture. Note the Asynchronous FIFO which was later removed during the Genlock optimization to resolve phase skew.</em></p>
+</div>
 
 #### 🛠️ Critical Troubleshooting: Frequency Interference & Data-Signal Decoupling
 
