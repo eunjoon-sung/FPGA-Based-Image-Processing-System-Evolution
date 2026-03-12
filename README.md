@@ -12,16 +12,17 @@ This repository documents the evolution of a real-time hardware video processing
 * **Processing Pipeline:** Real-time chroma-key blending and downscaling (decimation) controlled by a deterministic FSM to minimize latency.
 * **Verification:** Applied 2-stage Flip-Flop synchronizers to prevent metastability across clock domains and utilized Vivado ILA for real-time signal timing verification.
 
+
 #### 🛠️ Critical Troubleshooting: Frequency Interference & Data-Signal Decoupling
 
-| Frequency Interference (5-way Split) | Severe Screen Tearing & Noise |
+| Frequency Interference (Color Bar 5-way Split) | Severe Screen Tearing & Noise |
 | :---: | :---: |
 | <img src="./v1_bram_streaming/assets/colorbar_5split.png" width="350"> | <img src="./v1_bram_streaming/assets/screen_tearing.png" width="350"> |
 
-* **Issue:** Encountered severe screen tearing and periodic noise (5-way split) even after introducing an asynchronous FIFO to handle CDC (Clock Domain Crossing).
+* **Issue:** The standard video feed suffered from extreme screen tearing and severe noise, where only basic contrast was discernible. This persisted even after introducing an Asynchronous FIFO for Clock Domain Crossing (CDC). To isolate the fault, the camera's internal Color Bar test pattern was enabled via ROM configuration. Instead of filling the screen with a single pattern, the display exhibited a repeating 5-way horizontal split.
 
 * **Hypothesis (Architectural Deduction):** Without clear ILA triggers across the asynchronous boundary, an architectural hypothesis was formulated:
-  1. **Clock Frequency Interference:** The periodic 5-way split strongly implied a microscopic difference between the camera's external `PCLK` (25.000MHz) and the FPGA's internal system clock (25.01MHz) creating periodic interference, which manifested as multiple horizontal noise bands.
+  1. **Clock Frequency Interference:** The precise 5-way split observed during the static color bar test strongly implied a microscopic difference between the camera's external `PCLK` (25.000MHz) and the FPGA's internal system clock (25.01MHz). This slight frequency mismatch caused the horizontal sync to continuously drift and wrap around 5 times per frame.
   2. **Data-Signal Decoupling (Phase Skew):** Suspected that despite using an Async FIFO, the two clock domains remained fundamentally unsynchronized. Pixel data suffered variable latency as it passed through the FIFO, whereas control signals (`VSYNC`/`HREF`) bypassed the FIFO and propagated instantly. This timing mismatch completely decoupled the data path from the control path, causing a severe phase skew where the SRAM address reset triggered before the corresponding pixel data arrived.
 
 * **Action & Verification (Genlock Approach):** To empirically test this hypothesis, implemented a **Direct Drive (Genlock)** approach by completely removing the FIFO from the data path. Unified the entire processing pipeline strictly under the camera's `PCLK`. By explicitly gating data valid signals with `HREF`, the data and control paths were physically coupled.
