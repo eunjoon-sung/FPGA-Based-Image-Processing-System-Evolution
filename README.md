@@ -18,7 +18,7 @@ This repository documents the evolution of a real-time hardware video processing
 #### 📌 System Architecture (Initial Design)
 <div align="center">
   <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ea07afda-6a08-4f0e-9364-f3fe2a79c93f" />
-  <p><em>Figure 1: Initial BRAM streaming architecture. Note the Asynchronous FIFO which was later removed during the Genlock optimization to resolve phase skew.</em></p>
+  <p><em>Figure 1: Initial BRAM streaming architecture. Note the Asynchronous FIFO which was later removed during the Clock Domain Unification to resolve phase skew.</em></p>
 </div>
 
 #### 🛠️ Critical Troubleshooting: Frequency Interference & Data-Signal Decoupling
@@ -41,7 +41,7 @@ This repository documents the evolution of a real-time hardware video processing
   <p><em>Figure 2: Architectural refactoring (Module Consolidation). The Async FIFO was removed, and three fragmented modules were unified to operate strictly under the camera's native PCLK.</em></p>
 </div>
 
-  As illustrated in the Before/After diagram above, the unstable Async FIFO was completely removed. Three previously fragmented modules (`camera_read`, `downscaling`, and `sram_writer`) were aggressively consolidated into a single, unified `camera_capture` module. By driving this unified block strictly with the camera's native `PCLK` and explicitly gating the generated pixel data with the `HREF`/`VSYNC` signals in real-time, the data and control paths were physically and permanently coupled (Direct Drive / Genlock). Finally, the Clock Domain Crossing (CDC) boundary was strategically shifted to the SRAM itself, allowing the read-side pipeline (HDMI/VTG) to safely operate on independent internal system clocks (25MHz/100MHz).
+  As illustrated in the Before/After diagram above, the unstable Async FIFO was completely removed. Three previously fragmented modules (`camera_read`, `downscaling`, and `sram_writer`) were aggressively consolidated into a single, unified `camera_capture` module. By driving this unified block strictly with the camera's native `PCLK` and explicitly gating the generated pixel data with the `HREF`/`VSYNC` signals in real-time, the data and control paths were physically and permanently coupled (Source-Synchronous Design). Finally, the Clock Domain Crossing (CDC) boundary was strategically shifted to the SRAM itself, allowing the read-side pipeline (HDMI/VTG) to safely operate on independent internal system clocks (25MHz/100MHz).
 
   
 
