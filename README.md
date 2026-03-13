@@ -7,9 +7,11 @@ This repository documents the evolution of a real-time hardware video processing
 
 ## 1. [Phase 1](./v1_bram_streaming) BRAM-Based Streaming Architecture (Folder: `v1_bram_streaming`)
 
-**Overview & Implementation:**
-* **Capture & Control:** Custom RTL implementation of the I2C (SCCB) protocol for camera configuration. Designed a Data Capturer to extract valid pixels strictly synchronized with VSYNC/HREF signals.
-* **Processing Pipeline:** Real-time chroma-key blending and downscaling (decimation) controlled by a deterministic FSM to minimize latency.
+#### Overview & Implementation (Initial Architecture)
+* **Capture & Control:** Custom RTL implementation of the I2C (SCCB) protocol for camera configuration. Designed a Data Capturer to extract valid pixels strictly synchronized with `VSYNC`/`HREF` signals.
+* **Clock Domain Crossing (CDC) & Buffering:** Initially implemented an Asynchronous FIFO to safely transfer pixel data from the camera's native `PCLK` domain to the internal system clock domain. *(Note: This architecture was later drastically refactored to resolve timing issues. See the Troubleshooting Log below).*
+* **Processing Pipeline (Write-Path):** Real-time Chroma-key blending and Downscaling (decimation by dropping alternate pixels/lines) controlled by a deterministic FSM to fit the data within limited internal BRAM constraints.
+* **Display Generation (Read-Path):** Custom Video Timing Generator (VTG) designed to read from BRAM and perform real-time Upscaling (pixel replication) to map the reduced image back to the target HDMI monitor resolution.
 * **Verification:** Applied 2-stage Flip-Flop synchronizers to prevent metastability across clock domains and utilized Vivado ILA for real-time signal timing verification.
 
 #### 📌 System Architecture (Initial Design)
