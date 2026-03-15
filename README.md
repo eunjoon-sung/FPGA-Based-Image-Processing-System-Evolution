@@ -129,7 +129,7 @@ Following the system-level integration and logical verification in the FPGA (Viv
 * **Post-Layout Simulation:** Cadence Xcelium (`xrun`, GLS with SDF back-annotation)
 
 **Step-by-Step Flow:**
-1. **Logic Synthesis:** Mapped the AXI4 Writer IP to the 45nm standard cells using a custom `run_synth.tcl` script, extracting and optimizing initial area, power, and timing reports.
+1. **Logic Synthesis:** Mapped the AXI4 Writer IP to the 45nm standard cells using a custom `run_syn.tcl` script, extracting and optimizing initial area, power, and timing reports.
 2. **Place & Route:** Executed physical layout via a `run_pnr.tcl` script. Completed Clock Tree Synthesis (CTS) and routing, ultimately extracting the Standard Delay Format (SDF) and the final gate-level netlist.
 3. **Post-Layout Simulation:** Combined the extracted netlist with the SDF file to conduct a sign-off verification. This confirmed that AXI4 transactions operate seamlessly at the 100MHz target frequency under real-world physical wire delays.
 
