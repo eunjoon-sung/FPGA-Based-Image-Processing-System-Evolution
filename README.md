@@ -150,8 +150,8 @@ Following the system-level integration and logical verification in the FPGA (Viv
 While the current AXI4 architecture successfully decouples the clock domains, it relies on an "Open-loop" writing mechanism. The system assumes perfect data ingestion based strictly on the VSYNC frame boundary.
 
 * **Vulnerability (Error Propagation):** If external EMI noise or camera glitches cause a dropped or extra pixel, the linear address pointer (`ADDR_OFFSET`) will permanently shift for the remainder of the frame, corrupting the memory map until the next VSYNC clears the error.
-* **Proposed Upgrade 1 (Line-Level Synchronization):** Implement an active sub-address correction mechanism using the **HREF (HSYNC) signal**. By forcing the memory write pointer to align with the start of a new row address at every HREF rising edge, any pixel noise will be localized to a single scanline, significantly increasing system robustness.
-* **Proposed Upgrade 2 (Triple Buffering):** Transition from the current rigid double-buffering architecture to a **Triple Buffering Scheme**. This will introduce a completely independent, third memory space that acts as a traffic controller, physically guaranteeing that the AXI Reader never accesses a memory block currently being modified by the AXI Writer, eliminating all residual asynchronous tearing.
+* **Proposed Upgrade (Line-Level Synchronization):** Implement an active sub-address correction mechanism using the **HREF (HSYNC) signal**. By forcing the memory write pointer to align with the start of a new row address at every HREF rising edge, any pixel noise will be localized to a single scanline, significantly increasing system robustness.
+
 
 ---
 
