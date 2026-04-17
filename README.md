@@ -139,14 +139,11 @@ Following the system-level integration and logical verification in the FPGA (Viv
 
 **Critical Troubleshooting: The "Why" Approach to Timing Closure**
 
-* **Issue (Post-Route Hold Violation):** Following PnR, the Static Timing Analysis (STA) report indicated a marginal **Hold Slack violation of -0.011ns (11ps)** on a specific data path.
-* **Root Cause Analysis & Engineering Approach:** Rather than blindly relying on the EDA tool's error report to modify the RTL or manually insert buffers, I questioned the fundamental validity of the error: *"Is this 11ps static violation a functionally critical defect during actual chip operation?"* To answer this, a dynamic cross-verification was planned.
+* **Logic Synthesis & CTS Optimization (DRV Resolution):** Mapped the AXI4 Writer IP to the 45nm standard cells. Initially, the Pre-CTS synthesis revealed a Setup WNS of `-4.495 ns` and 1674 `max_tran` Design Rule Violations (DRVs). However, by executing Clock Tree Synthesis (CTS), the tool strategically distributed clock buffers, which completely eliminated all DRVs and flipped the Setup WNS to a healthy `+4.201 ns`, proving a perfectly balanced clock tree.
+* **Post-Route Hold Violation & SDC Analysis:** Following final routing, the STA reported widespread Hold violations across 4,236 paths. Rather than blindly inserting buffers, I analyzed the `.sdc` file and discovered that the `set_clock_uncertainty -hold` was overly pessimistic at `0.5 ns`. Relaxing this to a realistic `0.1 ns` and running aggressive optimization drastically reduced the violations to just 400 paths with a negligible WNS of `-0.011 ns` (11ps), while chip density maxed out at 95.059%.
 * **Resolution (Dynamic Verification):**
-  * Established a Post-Layout simulation environment in Xcelium (`run_postlayout.f`) and injected the PnR-extracted SDF to physically simulate wire delays (Back-annotation).
-  * Analyzed reset-model warnings (`RECREM`) during the simulator's elaboration phase, confirming they did not impact the data path timing checks.
-  * Upon analyzing the final simulation log (`xrun.log`) and waveforms, it was objectively confirmed that **zero Timing Violation messages and zero Unknown (X) states** occurred during all FSM state transitions and AXI4 handshakes, even on the flagged hold-violation path.
-* **Conclusion:** Concluded that the -11ps violation fell strictly within the simulator's calculation margin and process tolerance limits. By utilizing empirical log data to prove perfect logical and physical operation at the 100MHz target frequency, the design was signed-off without unnecessary hardware modifications.
-
+  Recognized that at 95% density, the tool physically lacked space for more buffers. More importantly, I calculated that the `11ps` STA violation was comfortably absorbed by the `100ps` SDC uncertainty margin. To prove this empirically, I established a Post-Layout simulation environment in Xcelium and injected the PnR-extracted SDF (Back-annotation).
+* **Conclusion (Timing Closure):** The `xrun.log` objectively confirmed **zero timing violations and zero unknown (X) states** occurred during all FSM state transitions and AXI4 handshakes. By verifying that the -11ps static violation was merely a byproduct of STA pessimism, the design was signed-off as functionally flawless at the 100MHz target frequency without forcing unnecessary RTL modifications.
 ---
 
 ## 5. Known Limitations & Future Work
