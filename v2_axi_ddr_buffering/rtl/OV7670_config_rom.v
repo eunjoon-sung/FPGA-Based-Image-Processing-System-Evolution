@@ -8,7 +8,10 @@ module OV7670_config_rom(
     );
     //FFFF is end of rom, FFF0 is delay
     always @(posedge clk) begin
-        if (rst) dout <= 0;
+      if (rst) begin
+				dout <= 0;
+			end
+			else begin
 			case(addr) 
 			0:  dout <= 16'h12_80; //reset
 			1:  dout <= 16'hFF_F0; // delay
@@ -39,8 +42,8 @@ module OV7670_config_rom(
 			17: dout <= 16'h8c_00;
 			18: dout <= 16'hA2_02;
 			
-			17: dout <= 16'h8c_00;
-			18: dout <= 16'hA2_02;
+			//17: dout <= 16'h8c_00;
+			//18: dout <= 16'hA2_02;
 			
 			19: dout <= 16'h3D_C0; //COM13      sets gamma enable, does not preserve reserved bits, may be wrong?
 			20: dout <= 16'h17_14; //HSTART     start high 8 bits
