@@ -92,6 +92,12 @@ module Downscaling(
                             scaled_data <= fifo_dout;
                             scaled_valid <= 1;
                         end
+												/*
+												원래 존재해야 하지만 빠진 코드
+												else begin
+												    scaled_valid <= 0;
+												end
+												*/
                     end
                     else begin
                         scaled_valid <= 0;
